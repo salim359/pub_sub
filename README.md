@@ -31,22 +31,6 @@ python3 --version
 
 If not installed, download from python.org.
 
-Directory Structure:The repository is organized as follows:
-assignment/
-├── task1/
-│   ├── server.py          # Task 1 server implementation
-│   ├── client.py          # Task 1 client implementation
-│   └── task1_demo.mp4    # Task 1 screencast video
-├── task2/
-│   ├── server.py          # Task 2 server implementation
-│   ├── client.py          # Task 2 client implementation
-│   └── task2_demo.mp4    # Task 2 screencast video
-├── task3/
-│   ├── server.py          # Task 3 server implementation
-│   ├── client.py          # Task 3 client implementation
-│   └── task3_demo.mp4    # Task 3 screencast video
-└── task4/
-    └── architecture.md    # Task 4 architecture proposal and diagram
 
 
 
@@ -188,20 +172,4 @@ Task 2: server.py, client.py, task2_demo.mp4
 Task 3: server.py, client.py, task3_demo.mp4
 Task 4: architecture.md (with embedded or linked diagram)
 
-
-Directory Structure:assignment/
-├── task1/
-│   ├── server.py
-│   ├── client.py
-│   └── task1_demo.mp4
-├── task2/
-│   ├── server.py
-│   ├── client.py
-│   └── task2_demo.mp4
-├── task3/
-│   ├── server.py
-│   ├── client.py
-│   └── task3_demo.mp4
-└── task4/
-    └── architecture.md
 
