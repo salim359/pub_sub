@@ -1,27 +1,44 @@
 import socket
-import sys
+import threading
 
-def server(port):
-    s=socket.socket()
-    print('Socket created')
-    s.bind(('localhost',port))
-    s.listen(3)
-    print('waiting for connections')
-    
+HOST = "localhost"
+PORT = 8071
+
+
+
+def handle_client(conn, addr):
     while True:
-        c,addr=s.accept()
-        msg=c.recv(1024).decode()
-        print('Connected with ',addr)
-        
-        while (msg.lower() != 'terminate'):
-            print('msg from client:\n',msg)
-            reply=input('reply:')
-            c.send(bytes(reply,'utf-8'))
-        
-        print('Connected with and terminated',addr)
-        c.close()
-          
-        
-if __name__ == "__main__":
-    port=int(sys.argv[1])
-    server(port)
+        data = conn.recv(1024)
+        if not data:
+            print("Client disconnected.")
+            break
+        print(f"{addr}: {data.decode()}")
+
+
+def read_cli_input(conn):
+    while True:
+        msg = input("")
+        if msg.lower() == "exit":
+            conn.close()
+            break
+        print(f"server: {msg}")
+        conn.sendall(msg.encode())
+
+
+socket = socket.socket()
+socket.bind((HOST, PORT))
+
+socket.listen(1)
+print(f"Server is listening {HOST}:{PORT}")
+
+conn, addr = socket.accept()
+print(f"Connected by {addr}")
+
+
+# Start thread to read from client
+threading.Thread(target=handle_client, args=(conn, addr), daemon=True).start()
+
+# Main thread reads CLI input
+read_cli_input(conn)
+
+socket.close()
