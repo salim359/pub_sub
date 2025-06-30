@@ -9,10 +9,10 @@ def client(server_ip,port):
         msg=input('Enter your Message to server or terminate (if you want to close the connection):\n You:')
         while msg.lower() != 'terminate':
             c.send(bytes(msg,'utf-8'))
-            print('Server:',c.recv(1024).decode()) 
+            print('Server:',c.recv(1024).decode())
+            msg=input('You:')
             
         print("Terminating,client.....")
-        c.send(bytes(msg,'utf-8'))
         c.close()
         
 if __name__ == "__main__":
