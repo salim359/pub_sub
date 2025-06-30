@@ -11,15 +11,16 @@ def server(port):
     while True:
         c,addr=s.accept()
         msg=c.recv(1024).decode()
+        print('Connected with ',addr)
         
-        if msg.lower() == 'terminate':
-            print('Connected with and terminated',addr)
-            c.close()
-        else:
-            c.send(bytes('Hi client!','utf-8'))
-            print('Connected with ',addr)
+        while (msg.lower() != 'terminate'):
             print('msg from client:\n',msg)
-            c.close()
+            reply=input('reply:')
+            c.send(bytes(reply,'utf-8'))
+        
+        print('Connected with and terminated',addr)
+        c.close()
+          
         
 if __name__ == "__main__":
     port=int(sys.argv[1])
