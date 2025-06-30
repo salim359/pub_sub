@@ -14,6 +14,7 @@ def client(server_ip,port):
             
         print("Terminating,client.....")
         c.close()
+        sys.exit(0)
         
 if __name__ == "__main__":
 
