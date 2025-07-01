@@ -76,6 +76,7 @@ Save as task1_demo.mp4 in assignment/task1/.
 
 
 **Task 2: Publishers and Subscribers**
+
 Objective: Extend Task 1 to handle multiple concurrent clients, with clients specifying "PUBLISHER" or "SUBSCRIBER" roles. The server echoes Publisher messages to all Subscribers.
 
 Run the Server: <br>
@@ -107,6 +108,7 @@ Record the server and multiple clients (at least one Publisher and one Subscribe
 Save as task2_demo.mp4 in assignment/task2/.
 
 **Task 3: Publishers and Subscribers Filtered on Topics/Subjects**
+
 Objective: Extend Task 2 to include topic-based filtering, where clients specify a topic via a command-line argument, and Publishers send messages to Subscribers on the same topic.
 
 Run the Server:
@@ -135,6 +137,7 @@ Record the server and multiple clients (Publishers and Subscribers on different 
 Save as task3_demo.mp4 in assignment/task3/.
 
 **Task 4: Enhance the Architecture**
+
 Objective: Propose a distributed architecture to improve availability and reliability, addressing the single point of failure in the server. No implementation is required, only documentation.
 
 Documentation:
@@ -164,7 +167,7 @@ Invalid arguments:Verify command-line arguments (e.g., python3 client.py 127.0.0
 
 Files:
 
-Task 1: server.py, client.py, task1_demo.mp4
-Task 2: server.py, client.py, task2_demo.mp4
-Task 3: server.py, client.py, task3_demo.mp4
+Task 1: server.py, client.py, task1_demo.mp4<br>
+Task 2: server.py, client.py, task2_demo.mp4<br>
+Task 3: server.py, client.py, task3_demo.mp4<br>
 Task 4: architecture.md (with embedded or linked diagram)
