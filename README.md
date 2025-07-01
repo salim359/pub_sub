@@ -1,73 +1,73 @@
-Middleware Architectures Assignment
+# Middleware Architectures Assignment
 
-Overview
+## Overview
 This repository contains the implementation of the Middleware Architectures Assignment (IS3108 / SCS3203) for UCSC, 2025. The assignment focuses on designing and implementing a Publish/Subscribe (Pub/Sub) middleware using client-server socket programming in Python. It consists of four tasks:
 
-Task 1: Implement a client-server socket application where the client sends messages via a Command Line Interface (CLI) to the server, which displays them. The client terminates on the "terminate" keyword.
-Task 2: Extend the application to support multiple concurrent clients, distinguishing between Publishers and Subscribers, with the server echoing Publisher messages to Subscriber clients.
-Task 3: Add topic-based message filtering, allowing Publishers to send messages on specific topics and Subscribers to receive messages only for their subscribed topics.
-Task 4: Propose a distributed architecture to improve availability and reliability, addressing the single point of failure in the server.
+**Task 1:** Implement a client-server socket application where the client sends messages via a Command Line Interface (CLI) to the server, which displays them. The client terminates on the "terminate" keyword.
+
+**Task 2:** Extend the application to support multiple concurrent clients, distinguishing between Publishers and Subscribers, with the server echoing Publisher messages to Subscriber clients.
+
+**Task 3:** Add topic-based message filtering, allowing Publishers to send messages on specific topics and Subscribers to receive messages only for their subscribed topics.
+
+**Task 4:** Propose a distributed architecture to improve availability and reliability, addressing the single point of failure in the server.
 
 The project is developed in Python and uses CLI-based interfaces, as specified in the assignment guidelines.
 
-Prerequisites
+### Prerequisites
 
-Python 3.x (tested with Python 3.12)
-A Linux, macOS, or Windows system with Python installed
-Basic understanding of running Python scripts from the command line
-A screen recording tool (e.g., OBS Studio, Kazam, or SimpleScreenRecorder) for creating screencasts for Tasks 1–3
-A diagramming tool (e.g., Draw.io, Lucidchart, or pen-and-paper) for Task 4’s architecture diagram
+* Python 3.x (tested with Python 3.12)
+* A Linux, macOS, or Windows system with Python installed
+* Basic understanding of running Python scripts from the command line
+* A screen recording tool (e.g., OBS Studio, Kazam, or SimpleScreenRecorder) for creating screencasts for Tasks 1–3
+* A diagramming tool (e.g., Draw.io, Lucidchart, or pen-and-paper) for Task 4’s architecture diagram
 
-Setup
+### Setup
 
-Clone the Repository:
-git clone <repository-url>
-cd <repository-name>
+- Clone the Repository:
+`git clone <repository-url>`
+`cd <repository-name>`
 
-Replace <repository-url> with the URL of this GitHub repository.
+- Replace `<repository-url>` with the URL of this GitHub repository.
 
-Ensure Python is Installed:Verify Python 3 is installed:
-python3 --version
+- Ensure Python is Installed:Verify Python 3 is installed:
+`python3 --version`
 
-If not installed, download from python.org.
-
-
+- If not installed, download from python.org.
 
 
-Usage
-Task 1: Client-Server Application
+### Usage
+**Task 1: Client-Server Application**
+
 Objective: Implement a client-server socket application where the client sends CLI messages to the server, which displays them. The client terminates on "terminate".
 
-Run the Server:
-cd assignment/task1
-python3 server.py 8000
+Run the Server:<br>
+`cd assignment/task1`<br>
+`python3 server.py`
 
-Expected output:
-Socket created
-Socket bound to port 8000
-Server listening on port 8000...
+Expected output:<br>
+`Socket created`<br>
+`Server is listening localhost:<port_number>`<br>
+`Connected by ('127.0.0.1', 33516)`
 
 
-Run the Client:In a separate terminal:
-python3 client.py 127.0.0.1 8000
+Run the Client:In a separate terminal:<br>
+`python3 client.py 127.0.0.1 <port_number>`
 
-Expected output:
-Connected to server 127.0.0.1:8000
+Expected output:<br>
+`Connected to server 127.0.0.1:<port_number>`
 
 
 Test Communication:
 
 Type messages in the client CLI (e.g., "Hello, server!") and press Enter.
-Server output:Connected to client: ('127.0.0.1', <port>)
-Message from ('127.0.0.1', <port>): Hello, server!
 
+Server output: <br>
+`Connected to client: ('127.0.0.1', <port>)`<br>
+`Message from ('127.0.0.1', <port>): Hello, server!`
 
 Type "terminate" in the client to disconnect:Terminating client...
 
-Server output:Client ('127.0.0.1', <port>) disconnected
-
-
-
+Server output: `Client ('127.0.0.1', <port>) disconnected`
 
 Screencast:
 
@@ -75,8 +75,7 @@ Record both terminals showing message exchange and termination.
 Save as task1_demo.mp4 in assignment/task1/.
 
 
-
-Task 2: Publishers and Subscribers
+**Task 2: Publishers and Subscribers**
 Objective: Extend Task 1 to handle multiple concurrent clients, with clients specifying "PUBLISHER" or "SUBSCRIBER" roles. The server echoes Publisher messages to all Subscribers.
 
 Run the Server:
