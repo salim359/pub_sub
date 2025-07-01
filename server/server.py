@@ -4,41 +4,48 @@ import threading
 HOST = "localhost"
 PORT = 8071
 
-
-
 def handle_client(conn, addr):
+    """Thread function to continuously receive messages from client"""
     while True:
         data = conn.recv(1024)
         if not data:
-            print("Client disconnected.")
+            print(f"Client {addr} disconnected.")
             break
-        print(f"{addr}: {data.decode()}")
+        message = data.decode('utf-8')
+        print(f"Client {addr}: {message}")
+    conn.close()
 
-
-def read_cli_input(conn):
+def send_messages(conn):
+    """Thread function to handle server input and send to client"""
     while True:
-        msg = input("")
+        msg = input("Server: ")
         if msg.lower() == "exit":
+            print("Server shutting down...")
             conn.close()
             break
-        print(f"server: {msg}")
-        conn.sendall(msg.encode())
+        conn.sendall(msg.encode('utf-8'))
 
+def start_server():
+    server_socket = socket.socket()
+    server_socket.bind((HOST, PORT))
+    server_socket.listen(1)
+    print(f"Server is listening on {HOST}:{PORT}")
+        
+    conn, addr = server_socket.accept()
+    print(f"Connected by {addr}")
+    
+    # Start thread to handle client messages
+    client_thread = threading.Thread(target=handle_client, args=(conn, addr), daemon=True)
+    client_thread.start()
+    
+    # Start thread to handle server input
+    server_thread = threading.Thread(target=send_messages, args=(conn,), daemon=True)
+    server_thread.start()
+    
+    # Wait for server thread to finish (when user types 'exit')
+    server_thread.join()
+            
+    server_socket.close()
 
-socket = socket.socket()
-socket.bind((HOST, PORT))
-
-socket.listen(1)
-print(f"Server is listening {HOST}:{PORT}")
-
-conn, addr = socket.accept()
-print(f"Connected by {addr}")
-
-
-# Start thread to read from client
-threading.Thread(target=handle_client, args=(conn, addr), daemon=True).start()
-
-# Main thread reads CLI input
-read_cli_input(conn)
-
-socket.close()
+if __name__ == "__main__":
+    start_server()
