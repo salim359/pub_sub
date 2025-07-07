@@ -1,174 +1,146 @@
-# Middleware Architectures Assignment
+# Task 2: Publish-Subscribe (Pub-Sub) Communication System
 
 ## Overview
-This repository contains the implementation of the Middleware Architectures Assignment (IS3108 / SCS3203) for UCSC, 2025. The assignment focuses on designing and implementing a Publish/Subscribe (Pub/Sub) middleware using client-server socket programming in Python. It consists of four tasks:
-
-**Task 1:** Implement a client-server socket application where the client sends messages via a Command Line Interface (CLI) to the server, which displays them. The client terminates on the "terminate" keyword.
-
-**Task 2:** Extend the application to support multiple concurrent clients, distinguishing between Publishers and Subscribers, with the server echoing Publisher messages to Subscriber clients.
-
-**Task 3:** Add topic-based message filtering, allowing Publishers to send messages on specific topics and Subscribers to receive messages only for their subscribed topics.
-
-**Task 4:** Propose a distributed architecture to improve availability and reliability, addressing the single point of failure in the server.
-
-The project is developed in Python and uses CLI-based interfaces, as specified in the assignment guidelines.
-
-### Prerequisites
-
-* Python 3.x (tested with Python 3.12)
-* A Linux, macOS, or Windows system with Python installed
-* Basic understanding of running Python scripts from the command line
-* A screen recording tool (e.g., OBS Studio, Kazam, or SimpleScreenRecorder) for creating screencasts for Tasks 1–3
-* A diagramming tool (e.g., Draw.io, Lucidchart, or pen-and-paper) for Task 4’s architecture diagram
-
-### Setup
-
-- Clone the Repository:
-`git clone <repository-url>`
-`cd <repository-name>`
-
-- Replace `<repository-url>` with the URL of this GitHub repository.
-
-- Ensure Python is Installed:Verify Python 3 is installed:
-`python3 --version`
-
-- If not installed, download from python.org.
-
-
-### Usage
-**Task 1: Client-Server Application**
-
-Objective: Implement a client-server socket application where the client sends CLI messages to the server, which displays them. The client terminates on "terminate".
-
-Run the Server:<br>
-`cd assignment/task1`<br>
-`python3 server.py`
-
-Expected output:<br>
-`Socket created`<br>
-`Server is listening localhost:<port_number>`<br>
-`Connected by ('127.0.0.1', 33516)`
-
-
-Run the Client:In a separate terminal:<br>
-`python3 client.py 127.0.0.1 <port_number>`
-
-Expected output:<br>
-`Connected to server 127.0.0.1:<port_number>`
-
-
-Test Communication:
-
-Type messages in the client CLI (e.g., "Hello, server!") and press Enter.
-
-Server output: <br>
-`Connected to client: ('127.0.0.1', <port>)`<br>
-`Message from ('127.0.0.1', <port>): Hello, server!`
-
-Type "terminate" in the client to disconnect:Terminating client...
-
-Server output: `Client ('127.0.0.1', <port>) disconnected`
-
-Screencast:
-
-Record both terminals showing message exchange and termination.
-Save as task1_demo.mp4 in assignment/task1/.
-
-
-**Task 2: Publishers and Subscribers**
-Objective: Extend Task 1 to handle multiple concurrent clients, with clients specifying "PUBLISHER" or "SUBSCRIBER" roles. The server echoes Publisher messages to all Subscribers.
-
-Run the Server:
-cd assignment/task2
-python3 server.py 8000
-
-Expected output:
-Server listening on port 8000...
-
-
-Run Publisher Client:
-python3 client.py 127.0.0.1 8000 PUBLISHER
-
-
-Run Subscriber Client (in another terminal):
-python3 client.py 127.0.0.1 8000 SUBSCRIBER
-
-
-Test Communication:
-
-Type messages in the Publisher client CLI; they should appear on all Subscriber client CLIs.
-Type "terminate" in any client to disconnect it.
-Server logs connections and disconnections.
-
-
-Screencast:
-
-Record the server and multiple clients (at least one Publisher and one Subscriber) showing message exchange.
-Save as task2_demo.mp4 in assignment/task2/.
-
-
-
-Note: Task 2 implementation is in progress. Update this section with specific instructions once completed.
-Task 3: Publishers and Subscribers Filtered on Topics/Subjects
-Objective: Extend Task 2 to include topic-based filtering, where clients specify a topic via a command-line argument, and Publishers send messages to Subscribers on the same topic.
-
-Run the Server:
-cd assignment/task3
-python3 server.py 8000
-
-
-Run Publisher Client:
-python3 client.py 127.0.0.1 8000 PUBLISHER TOPIC_A
-
-
-Run Subscriber Client:
-python3 client.py 127.0.0.1 8000 SUBSCRIBER TOPIC_A
-
-
-Test Communication:
-
-Type messages in the Publisher client CLI for TOPIC_A; they should appear only on Subscriber clients subscribed to TOPIC_A.
-Test with multiple topics (e.g., TOPIC_B) to verify filtering.
-Type "terminate" to disconnect clients.
-
-
-Screencast:
-
-Record the server and multiple clients (Publishers and Subscribers on different topics) showing topic-based message exchange.
-Save as task3_demo.mp4 in assignment/task3/.
-
-
-
-Note: Task 3 implementation is in progress. Update this section with specific instructions once completed.
-Task 4: Enhance the Architecture
-Objective: Propose a distributed architecture to improve availability and reliability, addressing the single point of failure in the server. No implementation is required, only documentation.
-
-Documentation:
-See assignment/task4/architecture.md for the proposed architecture.
-Includes a diagram (e.g., created with Draw.io) and a description of improvements over the single-server model.
-Focuses on mitigating server failure through distributed nodes.
-
-
-
-Note: Task 4 documentation is in progress. Update this section once the architecture proposal is finalized.
-Troubleshooting
-
-Address already in use:lsof -i :8000
-sudo kill -9 <PID>
-
-Or use a different port (e.g., 8001).
-Connection refused:Ensure the server is running before starting clients and that IP/port match.
-Firewall:For remote testing (e.g., 192.168.10.2), open the port (e.g., 8000) in your firewall:sudo ufw allow 8000
-
-
-Invalid arguments:Verify command-line arguments (e.g., python3 client.py 127.0.0.1 8000 for Task 1).
-
-Submission
-
-Files:
-Task 1: server.py, client.py, task1_demo.mp4
-Task 2: server.py, client.py, task2_demo.mp4
-Task 3: server.py, client.py, task3_demo.mp4
-Task 4: architecture.md (with embedded or linked diagram)
-
-
+This project implements a publish-subscribe messaging system using Python sockets. The server acts as a message broker that manages publishers and subscribers, broadcasting messages from publishers to all connected subscribers in real-time.
+
+## Features
+- **Multi-client support**: Handles multiple publishers and subscribers simultaneously
+- **Message broadcasting**: Messages from publishers are automatically sent to all subscribers
+- **Role-based client connections**: Clients connect as either publishers or subscribers
+- **Concurrent connections**: Multithreaded server handles multiple clients concurrently
+- **Real-time messaging**: Instant message delivery from publishers to subscribers
+- **Connection management**: Automatic cleanup of disconnected clients
+- **Server commands**: Built-in commands for monitoring and control
+
+## Architecture
+- **Server**: Acts as a message broker, managing client connections and routing messages
+- **Publishers**: Clients that send messages to the server for broadcasting
+- **Subscribers**: Clients that receive messages from publishers via the server
+
+## Files
+- `server.py` - Pub-Sub server implementation with message brokering
+- `client.py` - Client implementation supporting both publisher and subscriber roles
+- `README.md` - This documentation file
+- `task2.mkv` - Video demonstration of the system
+
+## Requirements
+- Python 3.x
+- No external dependencies (uses built-in socket and threading modules)
+
+## Usage
+
+### Starting the Server
+```bash
+python server.py
+```
+
+The server will:
+- Listen on `localhost:8071`
+- Accept multiple client connections
+- Display connection status for publishers and subscribers
+- Show all incoming messages with sender information
+- Broadcast messages from publishers to all subscribers
+
+**Server Commands:**
+- `status` - Show current number of publishers and subscribers
+- `exit` - Shutdown the server gracefully
+- `Ctrl+C` - Force shutdown
+
+### Starting Clients
+
+#### Publisher Client
+```bash
+python client.py <server_ip> <port> PUBLISHER
+```
+
+Example:
+```bash
+python client.py localhost 8071 PUBLISHER
+```
+
+The publisher will:
+- Connect to the server and register as a publisher
+- Prompt for messages to send with `PUB: `
+- Broadcast messages to all subscribers via the server
+- Type `terminate` to disconnect
+
+#### Subscriber Client
+```bash
+python client.py <server_ip> <port> SUBSCRIBER
+```
+
+Example:
+```bash
+python client.py localhost 8071 SUBSCRIBER
+```
+
+The subscriber will:
+- Connect to the server and register as a subscriber
+- Receive and display messages from all publishers
+- Show messages in format: `Server: [publisher_address]: message`
+- Automatically disconnect when receiving `terminate` command
+
+## Example Usage Scenario
+
+1. **Start the server:**
+   ```bash
+   python server.py
+   ```
+
+2. **Start a subscriber in another terminal:**
+   ```bash
+   python client.py localhost 8071 SUBSCRIBER
+   ```
+
+3. **Start a publisher in another terminal:**
+   ```bash
+   python client.py localhost 8071 PUBLISHER
+   ```
+
+4. **Send messages from publisher:**
+   ```
+   PUB: Hello subscribers!
+   PUB: This is a test message
+   ```
+
+5. **Subscriber receives:**
+   ```
+   Server: [('127.0.0.1', 54321)]: Hello subscribers!
+   Server: [('127.0.0.1', 54321)]: This is a test message
+   ```
+
+## Technical Details
+
+### Communication Protocol
+1. **Connection Phase**: Client sends role identifier ('pub' or 'sub')
+2. **Message Phase**: Publishers send messages, subscribers receive broadcasts
+3. **Termination Phase**: 'terminate' command closes connections gracefully
+
+### Threading Model
+- **Server**: One thread per client connection + main thread for new connections
+- **Publisher Client**: Main thread for input, separate thread for sending
+- **Subscriber Client**: Main thread for receiving, separate thread for message handling
+
+### Data Structures
+- `publishers`: Dictionary mapping connections to publisher information
+- `subscribers`: Dictionary mapping connections to subscriber information
+- `clients_lock`: Thread lock for safe concurrent access to client lists
+
+## Message Flow
+1. Publisher sends message to server
+2. Server receives message and identifies sender
+3. Server broadcasts message to all connected subscribers
+4. Subscribers receive message with sender identification
+
+## Error Handling
+- Automatic cleanup of disconnected clients
+- Graceful handling of network errors
+- Thread-safe client management
+- Proper resource cleanup on termination
+
+## Improvements from Task 1
+- **Multiple clients**: Supports many publishers and subscribers vs. single client
+- **Message broadcasting**: One-to-many communication pattern
+- **Role-based connections**: Different client types with specific behaviors
+- **Concurrent messaging**: Multiple publishers can send simultaneously
+- **Better resource management**: Improved cleanup and error handling
