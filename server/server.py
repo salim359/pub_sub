@@ -4,81 +4,82 @@ import threading
 HOST = "localhost"
 PORT = 8071
 
-# Global data structures to store clients
-publishers = {}  # {connection: (addr, connection)}
-subscribers = {}  # {connection: (addr, connection)}
+# New: topic -> list of subscriber connections
+subscribers_by_topic = {}
 clients_lock = threading.Lock()
 
-def broadcast_to_subscribers(message, sender_addr):
-    """Send message to all subscribers"""
+def broadcast_to_subscribers(topic, message, sender_addr):
+    """Send message to all subscribers of a topic"""
     with clients_lock:
+        if topic not in subscribers_by_topic:
+            return
+
         disconnected_subs = []
-        for conn, (addr, _) in subscribers.items():
+        for conn in subscribers_by_topic[topic]:
             try:
-                conn.sendall(f"[{sender_addr}]: {message}".encode('utf-8'))
+                conn.sendall(f"[{topic}] {sender_addr}: {message}".encode('utf-8'))
             except:
-                print(f"Subscriber {addr} disconnected during broadcast.")
+                print(f"[{topic}] Subscriber {sender_addr} disconnected during broadcast.")
                 disconnected_subs.append(conn)
-        
-        # Clean up disconnected subscribers
+
         for conn in disconnected_subs:
-            if conn in subscribers:
-                del subscribers[conn]
+            subscribers_by_topic[topic].remove(conn)
 
 def handle_client(conn, addr):
-    """Thread function to handle client communication"""
-    client_type = None
-
-    # First message should indicate client type ('pub' or 'sub')
-    data = conn.recv(1024)
-    if not data:
-        return
-    
-    client_type = data.decode('utf-8').strip()
-    
-    with clients_lock:
-        if client_type == 'pub':
-            publishers[conn] = (addr, conn)
-            print(f"Publisher {addr} connected. Total publishers: {len(publishers)}")
-        elif client_type == 'sub':
-            subscribers[conn] = (addr, conn)
-            print(f"Subscriber {addr} connected. Total subscribers: {len(subscribers)}")
-        else:
-            print(f"Unknown client type '{client_type}' from {addr}")
+    """Handle client communication with topic support"""
+    try:
+        init_data = conn.recv(1024)
+        if not init_data:
             conn.close()
             return
-    
-    # Handle messages based on client type
-    while True:
-        data = conn.recv(1024)
-        if not data:
-            break
-        
-        message = data.decode('utf-8').strip()
-        
-        if message.lower() == 'terminate':
-            print(f"{client_type.capitalize()} {addr} requested termination.")
-            break
-        
-        if client_type == 'pub':
-            print(f"Publisher {addr}: {message}")
-            # Broadcast message to all subscribers
-            broadcast_to_subscribers(message, addr)
-        elif client_type == 'sub':
-            print(f"Subscriber {addr}: {message}")
-            # Subscribers typically don't send messages, but we log them
 
+        parts = init_data.decode('utf-8').strip().split(":")
+        if len(parts) != 2:
+            print(f"Invalid initial data from {addr}")
+            conn.close()
+            return
 
-    # Clean up client from appropriate list
-    with clients_lock:
-        if conn in publishers:
-            del publishers[conn]
-            print(f"Publisher {addr} disconnected. Total publishers: {len(publishers)}")
-        elif conn in subscribers:
-            del subscribers[conn]
-            print(f"Subscriber {addr} disconnected. Total subscribers: {len(subscribers)}")
-    
-    conn.close()
+        role, topic = parts[0].lower(), parts[1].upper()
+
+        if role == "sub":
+            with clients_lock:
+                if topic not in subscribers_by_topic:
+                    subscribers_by_topic[topic] = []
+                subscribers_by_topic[topic].append(conn)
+            print(f"[SUBSCRIBER] {addr} subscribed to topic [{topic}]")
+
+            # Keep the connection open and wait for disconnect
+            try:
+                while True:
+                    data = conn.recv(1)
+                    if not data:
+                        break
+            except Exception:
+                pass
+
+        elif role == "pub":
+            print(f"[PUBLISHER] {addr} publishing to topic [{topic}]")
+            while True:
+                data = conn.recv(1024)
+                if not data:
+                    break
+
+                message = data.decode('utf-8').strip()
+                if message.lower() == 'terminate':
+                    break
+
+                broadcast_to_subscribers(topic, message, addr)
+
+    except Exception as e:
+        print(f"Error with client {addr}: {e}")
+    finally:
+        # Cleanup
+        with clients_lock:
+            for topic in subscribers_by_topic:
+                if conn in subscribers_by_topic[topic]:
+                    subscribers_by_topic[topic].remove(conn)
+        conn.close()
+        print(f"[DISCONNECTED] {addr}")
 
 def server_commands():
     """Handle server commands"""
@@ -89,49 +90,34 @@ def server_commands():
             return
         elif cmd == 'status':
             with clients_lock:
-                print(f"Publishers: {len(publishers)}, Subscribers: {len(subscribers)}")
-
+                total = sum(len(v) for v in subscribers_by_topic.values())
+                print(f"Active Subscribers: {total}")
+                for topic, subs in subscribers_by_topic.items():
+                    print(f"- {topic}: {len(subs)} subscriber(s)")
 
 def start_server():
     server_socket = socket.socket()
-    # server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind((HOST, PORT))
-    server_socket.listen(5)  # Allow multiple connections
-    print(f"Pub-Sub Server is listening on {HOST}:{PORT}")
-    print("Commands: status, exit/quit, help")
-    
+    server_socket.listen(5)
+    print(f"Pub-Sub Server with Topics is listening on {HOST}:{PORT}")
+    print("Commands: status, exit")
+
     # Start server command thread
     command_thread = threading.Thread(target=server_commands, daemon=True)
     command_thread.start()
-    
+
     try:
         while True:
             conn, addr = server_socket.accept()
             print(f"New connection from {addr}")
-            
+
             # Start thread to handle this client
             client_thread = threading.Thread(target=handle_client, args=(conn, addr), daemon=True)
             client_thread.start()
-    
     except KeyboardInterrupt:
-        print("\nServer interrupted. Shutting down...")
-    
+        print("Server interrupted. Shutting down...")
     finally:
-        # Close all client connections
-        with clients_lock:
-            for conn, _ in list(publishers.items()):
-                try:
-                    conn.close()
-                except:
-                    pass
-            for conn, _ in list(subscribers.items()):
-                try:
-                    conn.close()
-                except:
-                    pass
-        
         server_socket.close()
-        print("Server shut down complete.")
 
 if __name__ == "__main__":
     start_server()
